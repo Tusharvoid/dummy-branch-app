@@ -62,6 +62,35 @@ docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
+
+## 🔧 Environment Variables
+
+The application is configured via environment variables.
+
+| Variable | Description | Default |
+|---|---|---|
+| `FLASK_ENV` | Sets Flask mode (development/production) | `production` |
+| `LOG_LEVEL` | Logging verbosity (DEBUG, INFO, WARNING) | `INFO` |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://...` |
+| `LOG_FORMAT` | Log format: `text` or `json` | `text` |
+
+## 💡 Design Decisions & Trade-offs
+
+### 1. Nginx for SSL Termination
+-   **Decision**: Use Nginx as a reverse proxy to handle HTTPS.
+-   **Why**: Decouples security from application logic and improves performance.
+-   **Trade-off**: Adds a slight complexity to the Docker Compose setup compared to running SSL directly in Flask.
+
+### 2. Multi-Stage Docker Builds
+-   **Decision**: Use multi-stage builds for the API image.
+-   **Why**: Reduces final image size by excluding build dependencies (compilers, headers).
+-   **Trade-off**: Slightly longer build times during the first run.
+
+### 3. Gunicorn vs. Flask Server
+-   **Decision**: Use Gunicorn for production.
+-   **Why**: The default Flask server is single-threaded and not suitable for production traffic.
+-   **Trade-off**: Requires an extra dependency (`gunicorn`) and configuration.
+
 ## Monitoring
 
 -   **Prometheus**: [http://localhost:9091](http://localhost:9091)
